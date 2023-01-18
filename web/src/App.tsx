@@ -1,7 +1,15 @@
+import { Header } from "./components/Header";
+import { SummaryTable } from "./components/SummaryTable";
+
 import "./styles/global.css";
 
-function App() {
-  return <div className="bg-zinc-900">oi</div>;
+export function App() {
+  return (
+    <div className="w-screen h-screen flex justify-center items-center">
+      <div className="w-full max-w-5xl px-6 flex font-bold flex-col gap-16">
+        <Header />
+        <SummaryTable />
+      </div>
+    </div>
+  );
 }
-
-export default App;
