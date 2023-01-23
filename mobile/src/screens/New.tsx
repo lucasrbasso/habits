@@ -7,12 +7,14 @@ import {
   Keyboard,
   TouchableWithoutFeedback,
   View,
+  Alert,
 } from "react-native";
 import { Feather } from "@expo/vector-icons";
 
 import { BackButton } from "../components/BackButton";
 import { Checkbox } from "../components/Checkbox";
 import colors from "tailwindcss/colors";
+import { api } from "../lib/axios";
 
 const availableWeekDays = [
   "Domingo",
@@ -26,6 +28,7 @@ const availableWeekDays = [
 
 export const New = () => {
   const [weekDays, setWeekDays] = useState<number[]>([]);
+  const [title, setTitle] = useState("");
 
   function handleToggleWeekDay(weekDayIndex: number) {
     if (weekDays.includes(weekDayIndex)) {
@@ -34,6 +37,28 @@ export const New = () => {
       );
     } else {
       setWeekDays((prevState) => [...prevState, weekDayIndex]);
+    }
+  }
+
+  async function handleCreateNewHabit() {
+    try {
+      if (!title.trim() || weekDays.length === 0) {
+        Alert.alert(
+          "Novo hábito",
+          "Você precisa informar um título para o hábito e sua periodicidade."
+        );
+        return;
+      }
+
+      await api.post("/habits", { title, weekDays });
+
+      setTitle("");
+      setWeekDays([]);
+
+      Alert.alert("Novo hábito", "Hábito criado com sucesso.");
+    } catch (err) {
+      console.log(err);
+      Alert.alert("Ops!", "Não foi possível criar novo hábito.");
     }
   }
 
@@ -56,6 +81,8 @@ export const New = () => {
             className="h-12 pl-4 rounded-lg mt-3 bg-zinc-900 border-2 border-zinc-800 text-white focus:border-green-600"
             placeholder="Exercícios, dormir bem, etc..."
             placeholderTextColor={colors.zinc[500]}
+            onChangeText={setTitle}
+            value={title}
           />
 
           <Text className="mt-4 mb-3 text-white font-semibold text-base">
@@ -63,19 +90,18 @@ export const New = () => {
           </Text>
 
           {availableWeekDays.map((day, index) => (
-            <>
-              <Checkbox
-                checked={weekDays.includes(index)}
-                onPress={() => handleToggleWeekDay(index)}
-                key={day}
-                title={day}
-              />
-            </>
+            <Checkbox
+              checked={weekDays.includes(index)}
+              onPress={() => handleToggleWeekDay(index)}
+              key={{ day } + `${index}`}
+              title={day}
+            />
           ))}
 
           <TouchableOpacity
             className="w-full h-14 flex-row items-center justify-center bg-green-600 rounded-md mt-6"
             activeOpacity={0.7}
+            onPress={handleCreateNewHabit}
           >
             <Feather name="check" size={20} color={colors.white} />
             <Text className="font-semibold text-base text-white ml-2">
