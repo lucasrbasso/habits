@@ -19,12 +19,20 @@ type Summary = {
 
 export function SummaryTable() {
   const [summary, setSummary] = useState<Summary>([]);
+  const [loading, setLoading] = useState(true);
 
   useEffect(() => {
+    setLoading(true);
+
     api.get("summary").then((response) => {
       setSummary(response.data);
+      setLoading(false);
     });
   }, []);
+
+  if (loading) {
+    return <h1>Carregando...</h1>;
+  }
 
   return (
     <div className="w-full flex">
@@ -48,7 +56,7 @@ export function SummaryTable() {
             <HabitDay
               date={date}
               amount={dayInSummary?.amount}
-              completed={dayInSummary?.completed}
+              defaultCompleted={dayInSummary?.completed}
               key={date.toString()}
             />
           );
